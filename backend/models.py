@@ -4,7 +4,7 @@ db = SQLAlchemy()
 
 class Artista(db.Model):
   __tablename__ = 'artistas'
-  id = db.Column(db.Integer, primary_key=True)
+  id_artista = db.Column(db.Integer, primary_key=True)
   nombre = db.Column(db.String(255), nullable=False)
   es_banda = db.Column(db.Boolean, nullable=False)
   nacionalidad = db.Column(db.String(255), nullable=False)
@@ -12,12 +12,12 @@ class Artista(db.Model):
 
 class Dia(db.Model):
   __tablename__ = 'dias'
-  id = db.Column(db.Integer, primary_key=True)
+  id_dia = db.Column(db.Integer, primary_key=True)
   fecha = db.Column(db.Date, nullable=False)
 
 class Escenario(db.Model):
   __tablename__ = 'escenario'
-  id = db.Column(db.Integer, primary_key=True)
+  id_escenario = db.Column(db.Integer, primary_key=True)
   nombre = db.Column(db.String(255), nullable=False)
 
 class Show(db.Model):
@@ -32,7 +32,7 @@ class Show(db.Model):
 
 class Sponsor(db.Model):
   __tablename__ = 'sponsors'
-  id = db.Column(db.Integer, primary_key=True)
+  id_sponsors = db.Column(db.Integer, primary_key=True)
   nombre = db.Column(db.String(255), nullable=False)
   # foreign key de id en 'dias'
   id_dia = db.Column(db.Integer, db.ForeignKey('dias.id'), nullable=False)
