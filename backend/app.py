@@ -18,19 +18,21 @@ def home():
 
 app = Flask(__name__)
 
-@app.route('/api/<id_dia>/artistas/')
+@app.route('/<id_dia>/')
 def obtener_artistas():
 	conn = engine.connect()
 	try:
 		# Consulta para obtener los artistas por id_dia
-		query = text("Select a.nombre, a.imagen, d.fecha from artistas a, dias d, shows s where s.id_artista = a.id_artista and s.id_dia = d.id_dia;")
+		query = text("Select a.nombre, a.imagen, d.fecha from artistas a, dias d, shows s where s.id_artista = a.id_artista and d.id_dia = id_dia and s.id_dia = d.id_dia;")
 		result = conn.execute(query)
 		artistas = result.fetchall()
 		lista_artistas = []
 		for artista in artistas:
 			artista_data = {
+				'id': artista.id_artista,
 				'nombre': artista.nombre,
-				'imagen': artista.imagen  # nos falta
+				'imagen': artista.imagen,  # nos falta
+				'fecha': artista.fecha
 			}
 			lista_artistas.append(artista_data)
 		return jsonify(lista_artistas), 200
