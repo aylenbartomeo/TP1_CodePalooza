@@ -22,6 +22,7 @@ class Escenario(db.Model):
 
 class Show(db.Model):
   __tablename__ = 'shows'
+  id_show = db.Column(db.Integer, primary_key=True, autoincrement=True)  # Clave primaria agregada
   # foreign key de id en 'dias'
   id_dia = db.Column(db.Integer, db.ForeignKey('dias.id'), nullable=False)
   # foreign key de id en 'artistas'
