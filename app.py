@@ -1,3 +1,4 @@
+import base64
 from flask import Flask, request, jsonify, render_template
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import create_engine, text
@@ -23,7 +24,7 @@ def obtener_artistas(id_dia):
     conn = engine.connect()
     try:
         # Consulta para obtener los artistas por id_dia
-        query = text("SELECT s.id_dia, a.id_artista, a.nombre, d.fecha FROM artistas a, dias d, shows s WHERE s.id_artista = a.id_artista AND d.id_dia = :id_dia AND s.id_dia = d.id_dia")
+        query = text("SELECT s.id_dia, a.id_artista, a.fotos, a.nombre, d.fecha FROM artistas a, dias d, shows s WHERE s.id_artista = a.id_artista AND d.id_dia = :id_dia AND s.id_dia = d.id_dia")
         result = conn.execute(query, {'id_dia': id_dia})
         artistas = result.fetchall()
         
@@ -33,6 +34,10 @@ def obtener_artistas(id_dia):
                 'id_dia': artista.id_dia,
 				'id': artista.id_artista,
                 'nombre': artista.nombre,
+                # base64.b64encode es una función de Python que toma datos binarios (como los de una imagen) y los convierte en una cadena de texto base64.
+                # .decode('utf-8') convierte esos bytes en una cadena de texto Unicode, que es lo que necesitamos para incrustarla en un src de imagen en HTML.
+                # if artista.fotos else None comprueba si artista.fotos es None (es decir, si no hay imagen en la base de datos). En tal caso, asigna None a imagen.
+                'imagen': base64.b64encode(artista.fotos).decode('utf-8') if artista.fotos else None,
                 'fecha': artista.fecha
             }
             lista_artistas.append(artista_data)
