@@ -18,7 +18,7 @@ def home():
     return render_template('index.html')
 
 # Ruta para obtener artistas por día
-@app.route('/dia/<int:id_dia>', methods=["GET"])
+@app.route('/dia/<int:id_dia>/', methods=["GET"])
 def obtener_artistas(id_dia):
     conn = engine.connect()
     try:
@@ -36,8 +36,8 @@ def obtener_artistas(id_dia):
                 'fecha': artista.fecha
             }
             lista_artistas.append(artista_data)
-        
-        return jsonify(lista_artistas), 200
+        # Pasar la lista de artistas a la plantilla
+        return render_template('artistas.html', artistas=lista_artistas), 200
     
     except SQLAlchemyError as e:
         return jsonify({"mensaje": "Error al consultar la base de datos.", "error": str(e)}), 500

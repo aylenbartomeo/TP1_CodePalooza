@@ -14,7 +14,7 @@
 <body data-bs-theme="dark">
     <nav class="navbar navbar-expand-lg bg-dark navbar-dark">
         <div class="container-fluid">
-          <a class="navbar-brand" href="#">
+          <a class="navbar-brand" href="/">
             <img class="logo img-size" src="/static/images/LOLLA.jpg" alt="Logo">
             Crea tu propio Lolla!
           </a>
@@ -24,7 +24,7 @@
           <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav ms-auto"> 
                 <li class="nav-item">
-                  <a class="nav-link active" aria-current="page" href="#">Home</a>
+                  <a class="nav-link active" aria-current="page" href="/">Home</a>
                 </li>
                 <li class="nav-item">
                   <a class="nav-link" href="#">Tickets</a>
@@ -59,15 +59,14 @@
         integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
         crossorigin="anonymous"></script>
     <script>
-        function response_received(response) {
-            return response.json()
-        }
-
-        function parse_data(content) {
-            console.log("TENGO LA LISTA DE ARTISTAS!")
+        // Se pasa la variable artistas a la plantilla y se convierte a JSON usando el filtro tojson.
+        const lista_artistas = {{ artistas|tojson }};
+        
+        function parse_data(lista_artistas) {
+            console.log("TENGO LA LISTA DE ARTISTAS!");
 
             const container = document.getElementById("artistas");
-            for (let index = 0; index < content.length; index++) {
+            for (let index = 0; index < lista_artistas.length; index++) {
                 const item = document.createElement("div");
                 // depende el tamaño, pone mas o menos columnas
                 item.setAttribute("class", "col-6 col-md-4 col-lg-3 col-xl-2");
@@ -76,18 +75,18 @@
                 const card = document.createElement("a");
                 // text-decoration-none es para que no subraye el link al heroe en bootstrap
                 card.setAttribute("class", "card text-decoration-none");
-                card.setAttribute("href", `/artista?id=${content[index].id}`);
+                card.setAttribute("href", `/artista?id=${lista_artistas[index].id}`);
 
                 const image = document.createElement("img");
                 // clase que te pide bs que le pongas a la imagen
                 image.setAttribute("class", "card-img-top");
-                // le paso el link de la imagen
-                image.setAttribute("src", content[index].imagen)
+                // le paso el link de la imagen (asumiendo que tienes una columna de imagen en tus datos)
+                image.setAttribute("src", lista_artistas[index].imagen || '/static/images/default_image.jpg');
 
                 const card_body = document.createElement("div");
                 card_body.setAttribute("class", "card-body");
 
-                card_body.append(content[index].nombre);
+                card_body.append(lista_artistas[index].nombre);
                 card.append(image);
                 card.append(card_body);
                 item.append(card);
@@ -96,22 +95,9 @@
             }
         }
 
-        function request_error(error) {
-            console.log("ERROR")
-            console.log(error);
-        }
-        
-        // Obtiene el id_dia de los parámetros de la URL
-        let parametros = window.location.search;
-        let id_dia = new URLSearchParams(parametros).get("id_dia");
-
-        // then se ejecuta cuando la request sale bien
-        // el segundo then me da el cuerpo de la respuesta 
-        // catch se ejecuta cuando da error
-        fetch("http://localhost:5000/dia/"+id_dia)
-            .then(response_received)
-            .then(parse_data)
-            .catch(request_error)
+        document.addEventListener("DOMContentLoaded", function() {
+            parse_data(lista_artistas);
+        });
     </script>
 </body>
 
