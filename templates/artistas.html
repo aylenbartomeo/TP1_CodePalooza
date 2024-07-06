@@ -81,8 +81,8 @@
                 // clase que te pide bs que le pongas a la imagen
                 image.setAttribute("class", "card-img-top");
                 // le paso el link de la imagen (asumiendo que tienes una columna de imagen en tus datos)
-                image.setAttribute("src", lista_artistas[index].imagen || '/static/images/default_image.jpg');
-
+                image.setAttribute("src", `data:image/png;base64,${lista_artistas[index].imagen}`);
+                
                 const card_body = document.createElement("div");
                 card_body.setAttribute("class", "card-body");
 
