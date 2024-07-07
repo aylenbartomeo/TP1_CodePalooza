@@ -18,6 +18,12 @@ engine = create_engine("postgresql+psycopg2://postgres:postgres@localhost:5432/p
 def home():
     return render_template('index.html')
 
+
+# Ruta para ir al formulario
+@app.route('/form')
+def formulario():
+    return render_template('formulario.html')
+
 # Ruta para obtener artistas por día
 @app.route('/dia/<int:id_dia>/', methods=["GET"])
 def obtener_artistas(id_dia):
