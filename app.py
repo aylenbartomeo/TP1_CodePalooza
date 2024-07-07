@@ -47,6 +47,36 @@ def obtener_artistas(id_dia):
     except SQLAlchemyError as e:
         return jsonify({"mensaje": "Error al consultar la base de datos.", "error": str(e)}), 500
 
+# Ruta para ver la informacion de cada artista
+@app.route('/artista/<int:id_artista>/')
+def ver_artista(id_artista):
+    conn = engine.connect()
+    try:
+        # Consulta para obtener los detalles del artista por id_artista
+        query = text("SELECT id_artista, nombre, es_banda, nacionalidad, genero, fotos FROM artistas WHERE id_artista = :id_artista")
+        result = conn.execute(query, {'id_artista': id_artista})
+        artista = result.fetchone()
+
+        if not artista:
+            return jsonify({"mensaje": "Artista no encontrado"}), 404
+
+        # Convertir la imagen a base64 para mostrar en heroes.html
+        imagen_base64 = base64.b64encode(artista.fotos).decode('utf-8') if artista.fotos else None
+
+        # Renderizar heroes.html con los datos del artista seleccionado
+        return render_template('cartas.html', artista={
+            'nombre': artista.nombre,
+            'es_banda': artista.es_banda,
+            'nacionalidad': artista.nacionalidad,
+            'genero': artista.genero,
+            'imagen': imagen_base64
+        }), 200
+
+    except SQLAlchemyError as e:
+        return jsonify({"mensaje": "Error al consultar la base de datos.", "error": str(e)}), 500
+    finally:
+        conn.close()
+
 if __name__ == '__main__':
     print('Starting server...')
     db.init_app(app)
