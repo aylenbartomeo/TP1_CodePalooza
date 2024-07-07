@@ -23,11 +23,11 @@ body, html {
 }
 
 .bg-image {
-  height: 100vh;
-  width: 100vw;
   object-fit: cover;
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-attachment: fixed;
   filter: brightness(0.6);
-  position: absolute;
   top: 0;
   left: 0;
   z-index: -1;
@@ -42,6 +42,10 @@ body, html {
   margin: 0;
   width: 100%; /* Asegura que la lista ocupe todo el ancho de la pantalla */
   background-color: black; /* Fondo de color negro */
+}
+
+h1 {
+  text-align: center;
 }
 
 /* Efecto de barra debajo de cada opción de navegación */
