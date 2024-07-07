@@ -59,12 +59,12 @@
 
         <form class="row g-3" id="formCrearArtista">
             <div class="col-md-6">
-                <label for="inputName" class="form-label">Nombre</label>
-                <input type="text" class="form-control" id="inputName" name="nombre">
+                <label for="nombre" class="form-label">Nombre</label>
+                <input type="text" class="form-control" id="nombre" required>
             </div>
             <div class="col-md-6">
-                <label for="inputGenre" class="form-label">Género</label>
-                <select id="inputGenre" class="form-select" name="genero">
+                <label for="genero" class="form-label">Género</label>
+                <select id="genero" class="form-select" required>
                     <option selected>Pop</option>
                     <option>Rock</option>
                     <option>Electrónica</option>
@@ -73,12 +73,12 @@
                 </select>
             </div>
             <div class="col-md-6">
-                <label for="inputNationality" class="form-label">Nacionalidad</label>
-                <input type="text" class="form-control" id="inputNationality" name="nacionalidad">
+                <label for="nacionalidad" class="form-label">Nacionalidad</label>
+                <input type="text" class="form-control" id="nacionalidad" required>
             </div>
             <div class="col-md-6">
-                <label for="inputBoS" class="form-label">Banda o Solista</label>
-                <select id="inputBoS" class="form-select" name="es_banda">
+                <label for="banda" class="form-label">Banda o Solista</label>
+                <select id="banda" class="form-select">
                     <option selected>Banda</option>
                     <option>Solista</option>
                 </select>
@@ -109,59 +109,57 @@
     </section>
 
 
-    <!-- incluyo popper y boostrap js -->
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js"
-        integrity="sha384-uWlJ6rAHnxT3b9RxDpK4tehIrSYOAgS4j/xxOoQux1ekjTwTFOAlOZinCTj/t+Tc"
-        crossorigin="anonymous"></script>
+    <!-- incluyo boostrap js -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.min.js"
         integrity="sha384-RHt8U+fhU1ep5IxTT4hNJYxfjFHZGaF0LOiChkzR2e2CkIFnST1nhfoDY1YsFdpE"
         crossorigin="anonymous"></script>
-    <script>
-        // JavaScript para generar dinámicamente las tarjetas de los artistas
-        document.addEventListener("DOMContentLoaded", function () {
-            const artistas = {{ artistas | tojson }};
-            const artistasContainer = document.getElementById("artistas");
-
-            artistas.forEach(artista => {
-                const col = document.createElement("div");
-                col.className = "col-md-4";
-
-                const card = document.createElement("div");
-                card.className = "card";
-
-                const img = document.createElement("img");
-                img.src = `data:image/jpeg;base64,${artista.imagen}`;
-                img.className = "card-img-top";
-                img.alt = artista.nombre;
-
-                const cardBody = document.createElement("div");
-                cardBody.className = "card-body";
-
-                const cardTitle = document.createElement("h5");
-                cardTitle.className = "card-title";
-                cardTitle.textContent = artista.nombre;
-
-                const cardText = document.createElement("p");
-                cardText.className = "card-text";
-                // cardText.textContent = artista.fecha;
-
-                const link = document.createElement("a");
-                link.href = `/artista/${artista.id}`;
-                link.className = "btn btn-secondary";
-                link.textContent = "Ver detalles";
-
-                cardBody.appendChild(cardTitle);
-                cardBody.appendChild(cardText);
-                cardBody.appendChild(link);
-
-                card.appendChild(img);
-                card.appendChild(cardBody);
-
-                col.appendChild(card);
-                artistasContainer.appendChild(col);
-            });
-        });
-    </script>
+        <script>
+            // JavaScript para generar dinámicamente las tarjetas de los artistas
+            const lista_artistas = {{ artistas | tojson }};
+        
+            function parse_data(lista_artistas) {
+                const container_artistas = document.getElementById("artistas");
+                for (let index = 0; index < lista_artistas.length; index++) {
+                    const item = document.createElement("div");
+                    item.className = "col-md-4";
+        
+                    const card = document.createElement("div");
+                    card.className = "card";
+        
+                    const img = document.createElement("img");
+                    img.src = `data:image/jpeg;base64,${lista_artistas[index].imagen}`;
+                    img.className = "card-img-top";
+                    img.alt = lista_artistas[index].nombre;
+        
+                    const cardBody = document.createElement("div");
+                    cardBody.className = "card-body";
+        
+                    const cardTitle = document.createElement("h5");
+                    cardTitle.className = "card-title";
+                    cardTitle.textContent = lista_artistas[index].nombre;
+        
+                    const cardText = document.createElement("p");
+                    cardText.className = "card-text";
+        
+                    const link = document.createElement("a");
+                    link.href = `/artista/${lista_artistas[index].id}`;
+                    link.className = "btn btn-outline-light";
+                    link.textContent = "Ver detalles";
+        
+                    cardBody.appendChild(cardTitle);
+                    cardBody.appendChild(cardText);
+                    cardBody.appendChild(link);
+                    card.appendChild(img);
+                    card.appendChild(cardBody);
+        
+                    item.appendChild(card);
+                    container_artistas.appendChild(item);
+                }
+            }
+        
+            // Llama a la función para generar las tarjetas
+            parse_data(lista_artistas);
+        </script>
 
     <img class="bg-image" src="{{ url_for('static', filename='images/BG-LOLLA.png') }}" alt="Bg image">
 
