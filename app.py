@@ -42,7 +42,7 @@ def obtener_artistas(id_dia):
             }
             lista_artistas.append(artista_data)
         # Pasar la lista de artistas a la plantilla
-        return render_template('artistas.html', artistas=lista_artistas), 200
+        return render_template('artistas.html', artistas=lista_artistas, id_dia=id_dia), 200
     
     except SQLAlchemyError as e:
         return jsonify({"mensaje": "Error al consultar la base de datos.", "error": str(e)}), 500
@@ -60,10 +60,10 @@ def ver_artista(id_artista):
         if not artista:
             return jsonify({"mensaje": "Artista no encontrado"}), 404
 
-        # Convertir la imagen a base64 para mostrar en heroes.html
+        # Convertir la imagen a base64 para mostrar en cartas.html
         imagen_base64 = base64.b64encode(artista.fotos).decode('utf-8') if artista.fotos else None
 
-        # Renderizar heroes.html con los datos del artista seleccionado
+        # Renderizar acartas.html con los datos del artista seleccionado
         return render_template('cartas.html', artista={
             'nombre': artista.nombre,
             'es_banda': artista.es_banda,
