@@ -77,6 +77,30 @@ def ver_artista(id_artista):
     finally:
         conn.close()
 
+
+
+
+# @app.route('/dia/<int:id_dia>/crear_artista', methods=["POST"])
+# def crear_artista(id_dia):
+#     try:
+#         nombre = request.form['nombre']
+#         genero = request.form['genero']
+#         nacionalidad = request.form['nacionalidad']
+#         es_banda = request.form.get('es_banda', False) == 'True'
+#         dia = request.form['dia']
+#         escenario = request.form['escenario']
+
+#         # Crear un nuevo objeto Artista y agregarlo a la base de datos
+#         nuevo_artista = Artista(nombre=nombre, genero=genero, nacionalidad=nacionalidad, es_banda=es_banda)
+#         db.session.add(nuevo_artista)
+#         db.session.commit()
+
+#         return redirect(url_for('obtener_artistas', id_dia=id_dia))
+    
+#     except Exception as e:
+#         return jsonify({"mensaje": "Error al crear el artista.", "error": str(e)}), 500
+
+
 if __name__ == '__main__':
     print('Starting server...')
     db.init_app(app)
