@@ -7,96 +7,124 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
     <title>Formulario</title>
-    <style>
-        body {
-            padding-top: 140px; /* Ajuste para compensar la barra de navegación fija */
-        }
-    </style>
 </head>
-<body>
-    <nav class="navbar navbar-expand-lg bg-dark navbar-dark fixed-top">
+<body data-bs-theme="dark">
+    <nav class="navbar navbar-expand-lg bg-dark navbar-dark">
         <div class="container-fluid">
-          <a class="navbar-brand" href="#">
-            <img class="logo img-size" src="/static/images/LOLLA.jpg" alt="Logo">
-            Crea tu propio Lolla!
-          </a>
-          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-          </button>
-          <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav ms-auto"> 
-              <li class="nav-item">
-                <a class="nav-link active" aria-current="page" href="/">Home</a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link" href="/form">Agrega tu artista</a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link" href="/sponsors">Sponsors</a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link" href="#">Fechas</a>
-              </li>
-            </ul>
-          </div>
+            <a class="navbar-brand" href="/">
+                <img class="logo img-size" src="/static/images/LOLLA.jpg" alt="Logo">
+                Crea tu propio Lolla!
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+                aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link active" aria-current="page" href="/">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/form">Agrega tu artista</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">Sponsors</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">Fechas</a>
+                    </li>
+                </ul>
+            </div>
         </div>
       </nav>
-      
-    <section class="container my-5 bg-dark w-50 text-light py-3 mx-auto">
-
-        <form class="row g-3">
-          <div class="col-md-6">
-            <label for="inputName" class="form-label">Nombre</label>
-            <input type="text" class="form-control" id="inputName">
-          </div>
-          <div class="col-md-6">
-            <label for="inputGenre" class="form-label">Género</label>
-            <select id="inputGenre" class="form-select">
-                <option selected>Pop</option>
-                <option>Rock</option>
-                <option>Electrónica</option>
-                <option>Trap</option>
-                <option>Otros</option>
-            </select>
-          </div>
-          <div class="col-md-6">
-            <label for="inputNationality" class="form-label">Nacionalidad</label>
-            <input type="text" class="form-control" id="inputNationality">
-          </div>
-          <div class="col-md-6">
-            <label for="inputBoS" class="form-label">Banda o Solista</label>
-            <select id="inputBoS" class="form-select">
-                <option selected>Banda</option>
-                <option>Solista</option>
-            </select>
-          </div>
-          <div class="col-md-6">
-            <label for="inputDay" class="form-label">Día</label>
-            <select id="inputDay" class="form-select">
-                <option selected>1</option>
-                <option>2</option>
-                <option>3</option>
-            </select>
-          </div>
-          <div class="col-md-6">
-            <label for="inputStage" class="form-label">Stage</label>
-            <select id="inputStage" class="form-select">
-                <option selected>Linux</option>
-                <option>Android</option>
-                <option>macOS</option>
-                <option>Windows</option>
-            </select>
-          </div>
-
-          <div class="col-12">
-            <button type="submit" class="btn btn-primary">Crear artista</button>
-          </div>
+      <section class="container my-5 bg-dark w-50 text-light py-3 mx-auto">
+        <!-- al usar enctype="multipart/form-data", estás permitiendo que tu formulario pueda 
+         enviar archivos binarios al servidor, como imágenes, archivos de audio, videos, etc. -->
+        <form id="artistaForm" class="row g-3" enctype="multipart/form-data">
+            <div class="col-md-6">
+                <label for="inputName" class="form-label">Nombre</label>
+                <input type="text" class="form-control" id="inputName" name="nombre">
+            </div>
+            <div class="col-md-6">
+                <label for="inputGenre" class="form-label">Género</label>
+                <select id="inputGenre" class="form-select" name="genero">
+                    <option selected>Pop</option>
+                    <option>Rock</option>
+                    <option>Electrónica</option>
+                    <option>Trap</option>
+                    <option>Otros</option>
+                </select>
+            </div>
+            <div class="col-md-6">
+                <label for="inputNationality" class="form-label">Nacionalidad</label>
+                <input type="text" class="form-control" id="inputNationality" name="nacionalidad">
+            </div>
+            <div class="col-md-6">
+                <label for="inputBoS" class="form-label">Banda o Solista</label>
+                <select id="inputBoS" class="form-select" name="es_banda">
+                    <option selected>Banda</option>
+                    <option>Solista</option>
+                </select>
+            </div>
+            <div class="col-md-6">
+                <label for="inputDay" class="form-label">Día</label>
+                <select id="inputDay" class="form-select" name="dia">
+                    {% for dia in dias %}
+                        <option value="{{ dia.id_dia }}">{{ dia.fecha }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-6">
+                <label for="inputStage" class="form-label">Escenario</label>
+                <select id="inputStage" class="form-select" name="escenario">
+                    {% for escenario in escenarios %}
+                        <option value="{{ escenario.id_escenario }}">{{ escenario.nombre }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-6">
+                <label for="inputDuration" class="form-label">Duración</label>
+                <select id="inputDuration" class="form-select" name="duracion">
+                    <option selected>60</option>
+                    <option>90</option>
+                </select>
+            </div>
+            <div class="col-md-6">
+                <label for="inputImage" class="form-label">Imagen</label>
+                <input type="file" class="form-control" id="inputImage" name="imagen">
+            </div>
+            <div class="col-12">
+                <button type="button" class="btn btn-primary" onclick="agregarArtista()">Crear artista</button>
+            </div>
         </form>
 
     </section>
-
-
     <img class="bg-image" src="{{ url_for('static', filename='images/BG-LOLLA.png') }}" alt="Bg image">
+
+    <script>
+        function agregarArtista() {
+            var formData = new FormData(document.getElementById('artistaForm'));
+
+            fetch('/agregar_artista', {
+                method: 'POST',
+                body: formData
+            })
+            .then(function(response) {
+                return response.json();
+            })
+            .then(function(data) {
+                if (data.mensaje) {
+                    alert(data.mensaje);
+                } else {
+                    alert('Error al agregar el artista');
+                }
+            })
+            .catch(function(error) {
+                alert('Error al agregar el artista');
+                console.error(error);
+            });
+        }
+    </script>
 
 </body>
 </html>

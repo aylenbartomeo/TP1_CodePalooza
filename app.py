@@ -3,6 +3,7 @@ from flask import Flask, request, jsonify, render_template, redirect
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import create_engine, text
 from sqlalchemy.exc import SQLAlchemyError
+from sqlalchemy.orm import sessionmaker
 from models import db, Artista, Dia, Escenario, Show, Sponsor
 
 app = Flask(__name__, template_folder='templates')
@@ -12,6 +13,7 @@ port = 5000
 app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql+psycopg2://postgres:postgres@localhost:5432/postgres'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 engine = create_engine("postgresql+psycopg2://postgres:postgres@localhost:5432/postgres")
+Session = sessionmaker(bind=engine)
 
 # Ruta principal que renderiza index.html
 @app.route('/')
@@ -127,6 +129,51 @@ def remover_artista(id_artista):
     
     finally:
         conn.close()
+
+# Endpoint para agregar un nuevo artista
+@app.route('/agregar_artista', methods=['POST'])
+def agregar_artista():
+    data = request.form
+    nombre = data.get('nombre')
+    genero = data.get('genero')
+    nacionalidad = data.get('nacionalidad')
+    es_banda = data.get('es_banda') == 'Banda'
+    id_dia = data.get('dia')
+    id_escenario = data.get('escenario')
+    duracion = data.get('duracion')
+
+    imagen = request.files.get('imagen')
+    imagen_data = imagen.read() if imagen else None
+
+    session = Session()
+    try:
+        nuevo_artista = Artista(
+            nombre=nombre,
+            genero=genero,
+            nacionalidad=nacionalidad,
+            es_banda=es_banda,
+            fotos=imagen_data
+        )
+        session.add(nuevo_artista)
+        session.flush()
+
+        nuevo_show = Show(
+            id_dia=id_dia,
+            id_artista=nuevo_artista.id_artista,
+            id_escenario=id_escenario,
+            duracion=duracion
+        )
+        session.add(nuevo_show)
+
+        session.commit()
+        return jsonify({"mensaje": "Artista agregado exitosamente"}), 201
+
+    except SQLAlchemyError as e:
+        session.rollback()
+        return jsonify({"mensaje": "Error al agregar el artista.", "error": str(e)}), 500
+
+    finally:
+        session.close()
 
 if __name__ == '__main__':
     print('Starting server...')
