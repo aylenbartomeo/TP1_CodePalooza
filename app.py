@@ -72,7 +72,10 @@ def ver_artista(id_artista):
     conn = engine.connect()
     try:
         # Consulta para obtener los detalles del artista por id_artista
-        query = text("SELECT id_artista, nombre, es_banda, nacionalidad, genero, fotos FROM artistas WHERE id_artista = :id_artista")
+        query = text("SELECT a.id_artista, a.nombre, a.es_banda, a.nacionalidad, a.genero, a.fotos, e.nombre as nombre_escenario FROM artistas a "
+                     "JOIN shows s ON s.id_artista = a.id_artista "
+                     "JOIN escenario e ON s.id_escenario = e.id_escenario "
+                     "WHERE a.id_artista = :id_artista")
         result = conn.execute(query, {'id_artista': id_artista})
         artista = result.fetchone()
 
@@ -88,7 +91,8 @@ def ver_artista(id_artista):
             'es_banda': artista.es_banda,
             'nacionalidad': artista.nacionalidad,
             'genero': artista.genero,
-            'imagen': imagen_base64
+            'imagen': imagen_base64,
+            'nombre_escenario': artista.nombre_escenario
         }), 200
 
     except SQLAlchemyError as e:
@@ -112,7 +116,7 @@ def remover_artista(id_artista):
         # Commit de la transacción
         conn.commit()
 
-        # Redireccionar a la página anterior (usando request.referrer)
+        # Redireccionar a la página anterior
         return redirect(request.referrer)
 
     except SQLAlchemyError as e:
