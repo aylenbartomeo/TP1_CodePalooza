@@ -23,6 +23,24 @@ def home():
 def formulario():
     return render_template('formulario.html')
 
+# Ruta para ir a la seccion de sponsors
+@app.route('/sponsors')
+def sponsors():
+    conn = engine.connect()
+    try:
+        # Consulta para obtener todos los sponsors
+        query = text("SELECT id_sponsors, nombre, id_dia FROM sponsors")
+        result = conn.execute(query)
+        sponsors = result.fetchall()
+
+        return render_template('sponsors.html', sponsors=sponsors)
+
+    except SQLAlchemyError as e:
+        return jsonify({"mensaje": "Error al consultar la base de datos.", "error": str(e)}), 500
+
+    finally:
+        conn.close()
+
 # Ruta para obtener artistas por día
 @app.route('/dia/<int:id_dia>/', methods=["GET"])
 def obtener_artistas(id_dia):
