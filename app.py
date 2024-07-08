@@ -4,6 +4,8 @@ from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import create_engine, text
 from sqlalchemy.exc import SQLAlchemyError
 from models import db, Artista, Dia, Escenario, Show, Sponsor
+from sqlalchemy.orm import sessionmaker
+
 
 app = Flask(__name__, template_folder='templates')
 port = 5000
@@ -12,17 +14,13 @@ port = 5000
 app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql+psycopg2://postgres:postgres@localhost:5432/postgres'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 engine = create_engine("postgresql+psycopg2://postgres:postgres@localhost:5432/postgres")
+Session = sessionmaker(bind=engine)
 
 # Ruta principal que renderiza index.html
 @app.route('/')
 def home():
     return render_template('index.html')
 
-
-# Ruta para ir al formulario
-@app.route('/form')
-def formulario():
-    return render_template('formulario.html')
 
 # Ruta para obtener artistas por día
 @app.route('/dia/<int:id_dia>/', methods=["GET"])
@@ -83,29 +81,43 @@ def ver_artista(id_artista):
     finally:
         conn.close()
 
+# Ruta para ir al formulario
+@app.route('/form')
+def formulario():
+    return render_template('formulario.html')
 
+# Endpoint para agregar un nuevo artista
+@app.route('/agregar_artista', methods=['POST'])
+def agregar_artista():
+    data = request.json
+    nombre = data.get('nombre')
+    genero = data.get('genero')
+    nacionalidad = data.get('nacionalidad')
+    es_banda = data.get('es_banda', False)  # Booleano
+    id_dia = data.get('dia')
+    id_escenario = data.get('escenario')
 
-
-# @app.route('/dia/<int:id_dia>/crear_artista', methods=["POST"])
-# def crear_artista(id_dia):
-#     try:
-#         nombre = request.form['nombre']
-#         genero = request.form['genero']
-#         nacionalidad = request.form['nacionalidad']
-#         es_banda = request.form.get('es_banda', False) == 'True'
-#         dia = request.form['dia']
-#         escenario = request.form['escenario']
-
-#         # Crear un nuevo objeto Artista y agregarlo a la base de datos
-#         nuevo_artista = Artista(nombre=nombre, genero=genero, nacionalidad=nacionalidad, es_banda=es_banda)
-#         db.session.add(nuevo_artista)
-#         db.session.commit()
-
-#         return redirect(url_for('obtener_artistas', id_dia=id_dia))
+    session = Session()
     
-#     except Exception as e:
-#         return jsonify({"mensaje": "Error al crear el artista.", "error": str(e)}), 500
+    try:
+        # Crear el artista
+        nuevo_artista = Artista(nombre=nombre, genero=genero, nacionalidad=nacionalidad, es_banda=es_banda)
+        session.add(nuevo_artista)
+        session.commit()
 
+        # Crear el show asociado al artista, día y escenario
+        nuevo_show = Show(id_dia=id_dia, id_artista=nuevo_artista.id_artista, id_escenario=id_escenario)
+        session.add(nuevo_show)
+        session.commit()
+
+        return jsonify({"mensaje": "Artista agregado exitosamente"}), 201
+
+    except SQLAlchemyError as e:
+        session.rollback()
+        return jsonify({"mensaje": "Error al agregar el artista.", "error": str(e)}), 500
+
+    finally:
+        session.close()
 
 if __name__ == '__main__':
     print('Starting server...')
