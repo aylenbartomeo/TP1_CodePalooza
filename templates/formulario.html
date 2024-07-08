@@ -36,18 +36,18 @@
                 </ul>
             </div>
         </div>
-    </nav>
-      
-    <section class="container my-5 bg-dark w-50 text-light py-3 mx-auto">
-
-        <form id="artistaForm" class="row g-3">
+      </nav>
+      <section class="container my-5 bg-dark w-50 text-light py-3 mx-auto">
+        <!-- al usar enctype="multipart/form-data", estás permitiendo que tu formulario pueda 
+         enviar archivos binarios al servidor, como imágenes, archivos de audio, videos, etc. -->
+        <form id="artistaForm" class="row g-3" enctype="multipart/form-data">
             <div class="col-md-6">
                 <label for="inputName" class="form-label">Nombre</label>
-                <input type="text" class="form-control" id="inputName">
+                <input type="text" class="form-control" id="inputName" name="nombre">
             </div>
             <div class="col-md-6">
                 <label for="inputGenre" class="form-label">Género</label>
-                <select id="inputGenre" class="form-select">
+                <select id="inputGenre" class="form-select" name="genero">
                     <option selected>Pop</option>
                     <option>Rock</option>
                     <option>Electrónica</option>
@@ -57,73 +57,71 @@
             </div>
             <div class="col-md-6">
                 <label for="inputNationality" class="form-label">Nacionalidad</label>
-                <input type="text" class="form-control" id="inputNationality">
+                <input type="text" class="form-control" id="inputNationality" name="nacionalidad">
             </div>
             <div class="col-md-6">
                 <label for="inputBoS" class="form-label">Banda o Solista</label>
-                <select id="inputBoS" class="form-select">
+                <select id="inputBoS" class="form-select" name="es_banda">
                     <option selected>Banda</option>
                     <option>Solista</option>
                 </select>
             </div>
             <div class="col-md-6">
                 <label for="inputDay" class="form-label">Día</label>
-                <select id="inputDay" class="form-select">
-                    <option selected>1</option>
-                    <option>2</option>
-                    <option>3</option>
+                <select id="inputDay" class="form-select" name="dia">
+                    {% for dia in dias %}
+                        <option value="{{ dia.id_dia }}">{{ dia.fecha }}</option>
+                    {% endfor %}
                 </select>
             </div>
             <div class="col-md-6">
-                <label for="inputStage" class="form-label">Stage</label>
-                <select id="inputStage" class="form-select">
-                    <option selected>Linux</option>
-                    <option>Android</option>
-                    <option>macOS</option>
-                    <option>Windows</option>
+                <label for="inputStage" class="form-label">Escenario</label>
+                <select id="inputStage" class="form-select" name="escenario">
+                    {% for escenario in escenarios %}
+                        <option value="{{ escenario.id_escenario }}">{{ escenario.nombre }}</option>
+                    {% endfor %}
                 </select>
             </div>
-
+            <div class="col-md-6">
+                <label for="inputDuration" class="form-label">Duración</label>
+                <select id="inputDuration" class="form-select" name="duracion">
+                    <option selected>60</option>
+                    <option>90</option>
+                </select>
+            </div>
+            <div class="col-md-6">
+                <label for="inputImage" class="form-label">Imagen</label>
+                <input type="file" class="form-control" id="inputImage" name="imagen">
+            </div>
             <div class="col-12">
                 <button type="button" class="btn btn-primary" onclick="agregarArtista()">Crear artista</button>
             </div>
         </form>
 
     </section>
-
     <img class="bg-image" src="{{ url_for('static', filename='images/BG-LOLLA.png') }}" alt="Bg image">
 
     <script>
         function agregarArtista() {
-            var nombre = document.getElementById('inputName').value;
-            var genero = document.getElementById('inputGenre').value;
-            var nacionalidad = document.getElementById('inputNationality').value;
-            var es_banda = document.getElementById('inputBoS').value === 'Banda'; // Convertir a booleano según el valor del select
-            var dia = document.getElementById('inputDay').value;
-            var escenario = document.getElementById('inputStage').value;
-
-            var data = {
-                nombre: nombre,
-                genero: genero,
-                nacionalidad: nacionalidad,
-                es_banda: es_banda,
-                dia: dia,
-                escenario: escenario
-            };
+            var formData = new FormData(document.getElementById('artistaForm'));
 
             fetch('/agregar_artista', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(data)
+                body: formData
+            })
+            .then(function(response) {
+                return response.json();
             })
             .then(function(data) {
-                alert('Artista agregado exitosamente');
+                if (data.mensaje) {
+                    alert(data.mensaje);
+                } else {
+                    alert('Error al agregar el artista');
+                }
             })
             .catch(function(error) {
                 alert('Error al agregar el artista');
-                console.log(error)
+                console.error(error);
             });
         }
     </script>
