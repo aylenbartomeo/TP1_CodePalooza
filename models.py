@@ -23,12 +23,12 @@ class Escenario(db.Model):
 class Show(db.Model):
   __tablename__ = 'shows'
   id_show = db.Column(db.Integer, primary_key=True, autoincrement=True)  # Clave primaria agregada
-  # foreign key de id en 'dias'
-  id_dia = db.Column(db.Integer, db.ForeignKey('dias.id'), nullable=False)
-  # foreign key de id en 'artistas'
-  id_artista = db.Column(db.Integer, db.ForeignKey('artistas.id'), nullable=False)
-  # foreign key de id en 'escenario'
-  id_escenario = db.Column(db.Integer, db.ForeignKey('escenario.id'), nullable=False)
+  # foreign key de id_dia en 'dias'
+  id_dia = db.Column(db.Integer, db.ForeignKey('dias.id_dia'), nullable=False)
+  # foreign key de id_artista en 'artistas'
+  id_artista = db.Column(db.Integer, db.ForeignKey('artistas.id_artista'), nullable=False)
+  # foreign key de id_escenario en 'escenario'
+  id_escenario = db.Column(db.Integer, db.ForeignKey('escenario.id_escenario'), nullable=False)
   duracion = db.Column(db.Integer, nullable=False)
 
 class Sponsor(db.Model):
