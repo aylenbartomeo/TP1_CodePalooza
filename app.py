@@ -1,9 +1,8 @@
 import base64
-from flask import Flask, request, jsonify, render_template, redirect
+from flask import Flask, request, jsonify, render_template, redirect, url_for
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import create_engine, text
 from sqlalchemy.exc import SQLAlchemyError
-from sqlalchemy.orm import sessionmaker
 from models import db, Artista, Dia, Escenario, Show, Sponsor
 
 app = Flask(__name__, template_folder='templates')
@@ -12,38 +11,35 @@ port = 5000
 # Configuración de SQLAlchemy y base de datos
 app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql+psycopg2://postgres:postgres@localhost:5432/postgres'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-engine = create_engine("postgresql+psycopg2://postgres:postgres@localhost:5432/postgres")
-Session = sessionmaker(bind=engine)
 
-# Ruta principal que renderiza index.html
+db.init_app(app)
+engine = create_engine(app.config['SQLALCHEMY_DATABASE_URI'])
+
+# Ruta principal
 @app.route('/')
 def home():
     return render_template('index.html')
 
-# Ruta para ir al formulario
+# Ruta al formulario
 @app.route('/form')
 def formulario():
     return render_template('formulario.html')
 
-# Ruta para ir a la seccion de sponsors
+# Ruta a la seccion de sponsors
 @app.route('/sponsors')
 def sponsors():
     conn = engine.connect()
     try:
-        # Consulta para obtener todos los sponsors
         query = text("SELECT id_sponsors, nombre, id_dia FROM sponsors")
         result = conn.execute(query)
         sponsors = result.fetchall()
-
         return render_template('sponsors.html', sponsors=sponsors)
-
     except SQLAlchemyError as e:
         return jsonify({"mensaje": "Error al consultar la base de datos.", "error": str(e)}), 500
-
     finally:
         conn.close()
 
-# Ruta para obtener artistas por día
+# Ruta para obtener artistas por dia
 @app.route('/dia/<int:id_dia>/', methods=["GET"])
 def obtener_artistas(id_dia):
     conn = engine.connect()
@@ -64,7 +60,6 @@ def obtener_artistas(id_dia):
             }
             lista_artistas.append(artista_data)
         return render_template('artistas.html', artistas=lista_artistas, id_dia=id_dia), 200
-    
     except SQLAlchemyError as e:
         return jsonify({"mensaje": "Error al consultar la base de datos.", "error": str(e)}), 500
 
@@ -96,89 +91,62 @@ def ver_artista(id_artista):
             'imagen': imagen_base64,
             'nombre_escenario': artista.nombre_escenario
         }), 200
-
     except SQLAlchemyError as e:
         return jsonify({"mensaje": "Error al consultar la base de datos.", "error": str(e)}), 500
     finally:
         conn.close()
 
-# Ruta para eliminar un artista por ID
+# Ruta para eliminar un artista por id_artista
 @app.route('/artista/<int:id_artista>/', methods=["DELETE"])
 def remover_artista(id_artista):
     conn = engine.connect()
     try:
-        # Eliminar shows relacionados
         delete_shows_query = text("DELETE FROM shows WHERE id_artista = :id_artista")
         conn.execute(delete_shows_query, {'id_artista': id_artista})
 
-        # Eliminar el artista
         delete_artista_query = text("DELETE FROM artistas WHERE id_artista = :id_artista")
         conn.execute(delete_artista_query, {'id_artista': id_artista})
 
-        # Commit de la transacción
         conn.commit()
-
-        # Redireccionar a la página anterior
-        return redirect(request.referrer)
+        return redirect(url_for('obtener_artistas', id_dia=id_dia))
 
     except SQLAlchemyError as e:
         conn.rollback()
         error_message = f"Error al eliminar el artista con ID {id_artista}: {str(e)}"
-        print(error_message)  # Imprimir el error en la consola para depuración
+        print(error_message)
         return jsonify({"mensaje": "Error al eliminar el artista.", "error": str(e)}), 500
-    
     finally:
         conn.close()
 
-# Endpoint para agregar un nuevo artista
-@app.route('/agregar_artista', methods=['POST'])
+# Ruta para agregar un artista
+@app.route('/agregar_artista', methods=["POST"])
 def agregar_artista():
-    data = request.form
-    nombre = data.get('nombre')
-    genero = data.get('genero')
-    nacionalidad = data.get('nacionalidad')
-    es_banda = data.get('es_banda') == 'Banda'
-    id_dia = data.get('dia')
-    id_escenario = data.get('escenario')
-    duracion = data.get('duracion')
+    nombre = request.form.get('nombre')
+    genero = request.form.get('genero')
+    nacionalidad = request.form.get('nacionalidad')
+    es_banda = request.form.get('es_banda') == 'true'
+    id_dia = request.form.get('dia')
+    id_escenario = request.form.get('escenario')
 
-    imagen = request.files.get('imagen')
-    imagen_data = imagen.read() if imagen else None
-
-    session = Session()
     try:
-        nuevo_artista = Artista(
-            nombre=nombre,
-            genero=genero,
-            nacionalidad=nacionalidad,
-            es_banda=es_banda,
-            fotos=imagen_data
-        )
-        session.add(nuevo_artista)
-        session.flush()
+        nuevo_artista = Artista(nombre=nombre, genero=genero, nacionalidad=nacionalidad, es_banda=es_banda)
+        db.session.add(nuevo_artista)
+        db.session.commit()
 
-        nuevo_show = Show(
-            id_dia=id_dia,
-            id_artista=nuevo_artista.id_artista,
-            id_escenario=id_escenario,
-            duracion=duracion
-        )
-        session.add(nuevo_show)
+        nuevo_show = Show(id_dia=id_dia, id_artista=nuevo_artista.id_artista, id_escenario=id_escenario, duracion=60)
+        db.session.add(nuevo_show)
+        db.session.commit()
 
-        session.commit()
-        return jsonify({"mensaje": "Artista agregado exitosamente"}), 201
-
+        return redirect(url_for('obtener_artistas', id_dia=id_dia))
     except SQLAlchemyError as e:
-        session.rollback()
+        db.session.rollback()
         return jsonify({"mensaje": "Error al agregar el artista.", "error": str(e)}), 500
 
-    finally:
-        session.close()
 
 if __name__ == '__main__':
     print('Starting server...')
-    db.init_app(app)
     with app.app_context():
         db.create_all()
     app.run(host='0.0.0.0', debug=True, port=port)
     print('Started...')
+
