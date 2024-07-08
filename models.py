@@ -9,6 +9,7 @@ class Artista(db.Model):
   es_banda = db.Column(db.Boolean, nullable=False)
   nacionalidad = db.Column(db.String(255), nullable=False)
   genero = db.Column(db.String(255), nullable=False)
+  fotos = db.Column(db.LargeBinary, nullable=False)
 
 class Dia(db.Model):
   __tablename__ = 'dias'
