@@ -1,5 +1,5 @@
 import base64
-from flask import Flask, request, jsonify, render_template
+from flask import Flask, request, jsonify, render_template, redirect
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import create_engine, text
 from sqlalchemy.exc import SQLAlchemyError
@@ -17,7 +17,6 @@ engine = create_engine("postgresql+psycopg2://postgres:postgres@localhost:5432/p
 @app.route('/')
 def home():
     return render_template('index.html')
-
 
 # Ruta para ir al formulario
 @app.route('/form')
@@ -38,16 +37,12 @@ def obtener_artistas(id_dia):
         for artista in artistas:
             artista_data = {
                 'id_dia': artista.id_dia,
-				'id': artista.id_artista,
+                'id': artista.id_artista,
                 'nombre': artista.nombre,
-                # base64.b64encode es una función de Python que toma datos binarios (como los de una imagen) y los convierte en una cadena de texto base64.
-                # .decode('utf-8') convierte esos bytes en una cadena de texto Unicode, que es lo que necesitamos para incrustarla en un src de imagen en HTML.
-                # if artista.fotos else None comprueba si artista.fotos es None (es decir, si no hay imagen en la base de datos). En tal caso, asigna None a imagen.
                 'imagen': base64.b64encode(artista.fotos).decode('utf-8') if artista.fotos else None,
                 'fecha': artista.fecha
             }
             lista_artistas.append(artista_data)
-        # Pasar la lista de artistas a la plantilla
         return render_template('artistas.html', artistas=lista_artistas, id_dia=id_dia), 200
     
     except SQLAlchemyError as e:
@@ -69,8 +64,8 @@ def ver_artista(id_artista):
         # Convertir la imagen a base64 para mostrar en cartas.html
         imagen_base64 = base64.b64encode(artista.fotos).decode('utf-8') if artista.fotos else None
 
-        # Renderizar acartas.html con los datos del artista seleccionado
         return render_template('cartas.html', artista={
+            'id': id_artista,
             'nombre': artista.nombre,
             'es_banda': artista.es_banda,
             'nacionalidad': artista.nacionalidad,
@@ -83,29 +78,33 @@ def ver_artista(id_artista):
     finally:
         conn.close()
 
+# Ruta para eliminar un artista por ID
+@app.route('/artista/<int:id_artista>/', methods=["DELETE"])
+def remover_artista(id_artista):
+    conn = engine.connect()
+    try:
+        # Eliminar shows relacionados
+        delete_shows_query = text("DELETE FROM shows WHERE id_artista = :id_artista")
+        conn.execute(delete_shows_query, {'id_artista': id_artista})
 
+        # Eliminar el artista
+        delete_artista_query = text("DELETE FROM artistas WHERE id_artista = :id_artista")
+        conn.execute(delete_artista_query, {'id_artista': id_artista})
 
+        # Commit de la transacción
+        conn.commit()
 
-# @app.route('/dia/<int:id_dia>/crear_artista', methods=["POST"])
-# def crear_artista(id_dia):
-#     try:
-#         nombre = request.form['nombre']
-#         genero = request.form['genero']
-#         nacionalidad = request.form['nacionalidad']
-#         es_banda = request.form.get('es_banda', False) == 'True'
-#         dia = request.form['dia']
-#         escenario = request.form['escenario']
+        # Redireccionar a la página anterior (usando request.referrer)
+        return redirect(request.referrer)
 
-#         # Crear un nuevo objeto Artista y agregarlo a la base de datos
-#         nuevo_artista = Artista(nombre=nombre, genero=genero, nacionalidad=nacionalidad, es_banda=es_banda)
-#         db.session.add(nuevo_artista)
-#         db.session.commit()
-
-#         return redirect(url_for('obtener_artistas', id_dia=id_dia))
+    except SQLAlchemyError as e:
+        conn.rollback()
+        error_message = f"Error al eliminar el artista con ID {id_artista}: {str(e)}"
+        print(error_message)  # Imprimir el error en la consola para depuración
+        return jsonify({"mensaje": "Error al eliminar el artista.", "error": str(e)}), 500
     
-#     except Exception as e:
-#         return jsonify({"mensaje": "Error al crear el artista.", "error": str(e)}), 500
-
+    finally:
+        conn.close()
 
 if __name__ == '__main__':
     print('Starting server...')
